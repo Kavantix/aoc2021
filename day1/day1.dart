@@ -1,7 +1,7 @@
 import '../common.dart';
 
 final part1 = Part(
-  parser: int.parse,
+  parser: parseInts,
   implementation: (input) {
     int last = input[0];
     int increases = 0;
@@ -17,7 +17,7 @@ final part1 = Part(
 );
 
 final part2 = Part(
-  parser: int.parse,
+  parser: parseInts,
   implementation: (input) {
     int last = input[0] + input[1] + input[2];
     int increases = 0;

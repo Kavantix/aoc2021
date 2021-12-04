@@ -1,10 +1,8 @@
 import '../common.dart';
 
-final one = '1'.codeUnitAt(0);
-
-List<int> parseLine(String line) {
+List<List<int>> parseLine(List<String> lines) {
   return [
-    for (final c in line.split("")) int.parse(c),
+    for (final line in lines) parseInts(line.split('')),
   ];
 }
 

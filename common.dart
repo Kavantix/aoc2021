@@ -1,12 +1,23 @@
 class Part<T extends Object?> {
   Part({
-    required T Function(String line) parser,
-    required String Function(List<T>) implementation,
+    required T Function(List<String> lines) parser,
+    required String Function(T) implementation,
   })  : _parser = parser,
         _implementation = implementation;
-  final T Function(String line) _parser;
-  final String Function(List<T>) _implementation;
+  final T Function(List<String> lines) _parser;
+  final String Function(T) _implementation;
 
-  String run(List<String> lines) =>
-      _implementation(lines.map(_parser).toList());
+  String run(List<String> lines) => _implementation(_parser(lines));
 }
+
+extension ListExtensions<T> on List<T> {
+  /// The first element satisfying [test], or `null` if there are none.
+  T? firstWhereOrNull(bool Function(T element) test) {
+    for (var element in this) {
+      if (test(element)) return element;
+    }
+    return null;
+  }
+}
+
+List<int> parseInts(Iterable<String> values) => values.map(int.parse).toList();

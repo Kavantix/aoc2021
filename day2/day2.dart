@@ -14,7 +14,7 @@ class Instruction {
 }
 
 final part1 = Part(
-  parser: Instruction.fromLine,
+  parser: (lines) => lines.map(Instruction.fromLine).toList(),
   implementation: (input) {
     int depth = 0;
     int position = 0;
@@ -32,7 +32,7 @@ final part1 = Part(
 );
 
 final part2 = Part(
-  parser: Instruction.fromLine,
+  parser: (lines) => lines.map(Instruction.fromLine).toList(),
   implementation: (input) {
     int aim = 0;
     int depth = 0;

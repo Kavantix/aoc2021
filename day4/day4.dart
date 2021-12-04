@@ -90,7 +90,7 @@ final part1 = Part(
       print('Board won at $draw with score: ${winnerBoard.currentScore}');
       return '${winnerBoard.currentScore * draw}';
     }
-    return 'No board won';
+    throw FallThroughError();
   },
 );
 
@@ -112,6 +112,6 @@ final part2 = Part(
           'Last board to win, wins at $draw with score: ${boards[0].currentScore}');
       return '${boards[0].currentScore * draw}';
     }
-    return 'No board won';
+    throw FallThroughError();
   },
 );

@@ -5,7 +5,7 @@ class Instruction {
 
   static Instruction fromLine(String line) {
     final parts = line.split(' ');
-    if (parts.length != 2) throw 'Invalid input: ${line}';
+    if (parts.length != 2) throw 'Invalid input: $line';
     return Instruction(parts[0], int.parse(parts[1]));
   }
 
@@ -26,7 +26,7 @@ final part1 = Part(
     for (final instruction in input) {
       instructions[instruction.name]!(instruction.value);
     }
-    print('Position ${position}, Depth $depth');
+    print('Position $position, Depth $depth');
     return '${position * depth}';
   },
 );
@@ -48,7 +48,7 @@ final part2 = Part(
     for (final instruction in input) {
       instructions[instruction.name]!(instruction.value);
     }
-    print('Position ${position}, Depth $depth');
+    print('Position $position, Depth $depth');
     return '${position * depth}';
   },
 );

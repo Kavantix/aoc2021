@@ -2,30 +2,73 @@ import 'dart:math';
 
 import '../common.dart';
 
-class Line {
-  Line({
-    required this.startX,
-    required this.startY,
-    required this.endX,
-    required this.endY,
-  });
-  final int startX, startY;
-  final int endX, endY;
+class Point {
+  const Point(this.x, this.y);
+  final int x;
+  final int y;
 
-  bool get isHorizontal => startY == endY;
-  bool get isVertical => startX == endX;
-  bool get isDiagonal => startX != endX && startY != endY;
+  @override
+  String toString() {
+    return '($x, $y)';
+  }
+}
+
+class LineIterator extends Iterator<Point> {
+  LineIterator(this.line)
+      : _dx = line.end.x.compareTo(line.start.x),
+        _dy = line.end.y.compareTo(line.start.y);
+
+  final Line line;
+  Point? _current;
+  final int _dx;
+  final int _dy;
+
+  @override
+  Point get current => _current!;
+
+  @override
+  bool moveNext() {
+    final current = _current;
+    if (current == null) {
+      _current = line.start;
+      return true;
+    }
+    if (current.x == line.end.x && current.y == line.end.y) {
+      return false;
+    }
+    _current = Point(current.x + _dx, current.y + _dy);
+    return true;
+  }
+}
+
+class Line extends Iterable<Point> {
+  Line({
+    required this.start,
+    required this.end,
+  });
+  final Point start;
+  final Point end;
+
+  bool get isHorizontal => start.y == end.y;
+  bool get isVertical => start.x == end.x;
+  bool get isDiagonal => start.x != end.x && start.y != end.y;
 
   static Line fromString(String input) {
     final parts = input.split(' -> ');
     final start = parts[0].split(',').map(int.parse).toList();
     final end = parts[1].split(',').map(int.parse).toList();
     return Line(
-      startX: start[0],
-      startY: start[1],
-      endX: end[0],
-      endY: end[1],
+      start: Point(start[0], start[1]),
+      end: Point(end[0], end[1]),
     );
+  }
+
+  @override
+  LineIterator get iterator => LineIterator(this);
+
+  @override
+  String toString() {
+    return '${start.x},${start.y} -> ${end.x},${end.y}';
   }
 }
 
@@ -37,19 +80,10 @@ final part1 = Part(
   parser: parseLines,
   implementation: (lines) {
     final board = List.generate(1000, (_) => List.filled(1000, 0));
-    for (final line in lines) {
-      if (line.isHorizontal) {
-        for (int x = min(line.startX, line.endX);
-            x <= max(line.startX, line.endX);
-            x++) {
-          board[line.startY][x] += 1;
-        }
-      } else if (line.isVertical) {
-        for (int y = min(line.startY, line.endY);
-            y <= max(line.startY, line.endY);
-            y++) {
-          board[y][line.startX] += 1;
-        }
+    for (final line
+        in lines.where((line) => line.isHorizontal || line.isVertical)) {
+      for (final point in line) {
+        board[point.y][point.x] += 1;
       }
     }
     final overlaps = board.expand((l) => l).where((c) => c > 1).length;
@@ -62,28 +96,8 @@ final part2 = Part(
   implementation: (lines) {
     final board = List.generate(1000, (_) => List.filled(1000, 0));
     for (final line in lines) {
-      if (line.isHorizontal) {
-        for (int x = min(line.startX, line.endX);
-            x <= max(line.startX, line.endX);
-            x++) {
-          board[line.startY][x] += 1;
-        }
-      } else if (line.isVertical) {
-        for (int y = min(line.startY, line.endY);
-            y <= max(line.startY, line.endY);
-            y++) {
-          board[y][line.startX] += 1;
-        }
-      } else if (line.isDiagonal) {
-        int x = line.startX;
-        int y = line.startY;
-        final dx = line.endX - line.startX > 0 ? 1 : -1;
-        final dy = line.endY - line.startY > 0 ? 1 : -1;
-        while (x != line.endX + dx || y != line.endY + dy) {
-          board[y][x] += 1;
-          x += dx;
-          y += dy;
-        }
+      for (final point in line) {
+        board[point.y][point.x] += 1;
       }
     }
     final overlaps = board.expand((l) => l).where((c) => c > 1).length;

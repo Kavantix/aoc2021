@@ -5,6 +5,7 @@ import 'day1/day1.dart' as day1;
 import 'day2/day2.dart' as day2;
 import 'day3/day3.dart' as day3;
 import 'day4/day4.dart' as day4;
+import 'day5/day5.dart' as day5;
 
 void main(List<String> args) {
   if (args.length < 3) throw 'Not enough arguments';
@@ -14,7 +15,9 @@ void main(List<String> args) {
     'day2': [day2.part1, day2.part2],
     'day3': [day3.part1, day3.part2],
     'day4': [day4.part1, day4.part2],
+    'day5': [day5.part1, day5.part2],
   };
+  if (!days.containsKey(day)) throw '$day is not a valid day';
   final part = int.tryParse(args[1].replaceFirst('part', ''));
   if (part == null || part == 0 || part > 2)
     throw '${args[1]} is not a valid part';

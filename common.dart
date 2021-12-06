@@ -21,3 +21,11 @@ extension ListExtensions<T> on List<T> {
 }
 
 List<int> parseInts(Iterable<String> values) => values.map(int.parse).toList();
+
+extension IntIterableExtension on Iterable<int> {
+  int sum() => fold(0, (acc, i) => acc + i);
+}
+
+extension ListOfListExtension<T> on List<List<T>> {
+  Iterable<T> flatten() => expand((l) => l);
+}

@@ -11,9 +11,7 @@ class Number {
 }
 
 class Board {
-  Board(List<List<int>> board)
-      : _currentScore = board.fold(
-            0, (acc, row) => acc + row.fold(0, (acc, number) => acc + number)) {
+  Board(List<List<int>> board) : _currentScore = board.flatten().sum() {
     for (int row = 0; row < 5; row++) {
       for (int column = 0; column < 5; column++) {
         _board[board[row][column]] = Number(row: row, column: column);

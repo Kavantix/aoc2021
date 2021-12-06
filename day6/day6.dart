@@ -1,52 +1,59 @@
 import '../common.dart';
 
-class Fish {
-  Fish(this.timer);
+class FishGroup {
+  FishGroup({
+    required this.timer,
+    required this.count,
+  });
 
-  int timer;
-
-  Fish? tick() {
-    if (timer == 0) {
-      timer = 6;
-      return Fish(8);
-    } else {
-      timer -= 1;
-    }
-  }
+  final int timer;
+  final int count;
 }
 
-List<Fish> parseFish(List<String> input) {
-  return input.first.split(',').map((t) => Fish(int.parse(t))).toList();
+List<FishGroup> parseFish(List<String> input) {
+  final timers = input.first.split(',').map(int.parse).toList();
+  timers.sort();
+  final groups = List.filled(9, 0);
+  for (final timer in timers) {
+    groups[timer] += 1;
+  }
+  return List.generate(
+    groups.length,
+    (i) => FishGroup(timer: i, count: groups[i]),
+    growable: false,
+  );
 }
 
 final part1 = Part(
   parser: parseFish,
   implementation: (fish) {
-    for (int i = 0; i < 256; i++) {
-      final newFish = <Fish>[];
-      for (final f in fish) {
-        final n = f.tick();
-        if (n != null) newFish.add(n);
-      }
-      fish.addAll(newFish);
+    for (int i = 0; i < 80; i++) {
+      final int newFish = fish.first.count;
+      fish = [
+        for (int i = 0; i < 6; i++)
+          FishGroup(timer: i, count: fish[i + 1].count),
+        FishGroup(timer: 6, count: fish[7].count + fish[0].count),
+        FishGroup(timer: 7, count: fish[8].count),
+        FishGroup(timer: 8, count: newFish),
+      ];
     }
-    return '${fish.length} fish';
+    return '${fish.fold<int>(0, (acc, group) => acc + group.count)} fish';
   },
 );
 
 final part2 = Part(
-  parser: parseInts,
-  implementation: (input) {
-    int last = input[0] + input[1] + input[2];
-    int increases = 0;
-
-    for (int i = 0; i < input.length - 2; i++) {
-      final sum = input[i] + input[i + 1] + input[i + 2];
-      if (sum > last) {
-        increases += 1;
-      }
-      last = sum;
+  parser: parseFish,
+  implementation: (fish) {
+    for (int i = 0; i < 256; i++) {
+      final int newFish = fish.first.count;
+      fish = [
+        for (int i = 0; i < 6; i++)
+          FishGroup(timer: i, count: fish[i + 1].count),
+        FishGroup(timer: 6, count: fish[7].count + fish[0].count),
+        FishGroup(timer: 7, count: fish[8].count),
+        FishGroup(timer: 8, count: newFish),
+      ];
     }
-    return '$increases increases';
+    return '${fish.fold<int>(0, (acc, group) => acc + group.count)} fish';
   },
 );

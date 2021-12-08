@@ -26,6 +26,6 @@ extension IntIterableExtension on Iterable<int> {
   int sum() => fold(0, (acc, i) => acc + i);
 }
 
-extension ListOfListExtension<T> on List<List<T>> {
+extension IterableOfIterableExtension<T> on Iterable<Iterable<T>> {
   Iterable<T> flatten() => expand((l) => l);
 }

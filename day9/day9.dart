@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:isolate';
 
 import '../common.dart';
 
@@ -30,7 +31,7 @@ final part1 = Part(
       }
     }
 
-    print(lowPoints);
+    // print(lowPoints);
     return lowPoints.map(addOne).sum().toString();
   },
 );

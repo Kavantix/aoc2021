@@ -1,15 +1,16 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 class Part<T extends Object?> {
   Part({
     required T Function(List<String> lines) parser,
-    required String Function(T) implementation,
+    required FutureOr<String> Function(T) implementation,
   })  : _parser = parser,
         _implementation = implementation;
   final T Function(List<String> lines) _parser;
-  final String Function(T) _implementation;
+  final FutureOr<String> Function(T) _implementation;
 
-  String run(List<String> lines) => _implementation(_parser(lines));
+  FutureOr<String> run(List<String> lines) => _implementation(_parser(lines));
 }
 
 extension ListExtensions<T> on List<T> {

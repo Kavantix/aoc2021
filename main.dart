@@ -11,7 +11,8 @@ import 'day7/day7.dart' as day7;
 import 'day8/day8.dart' as day8;
 import 'day9/day9.dart' as day9;
 
-void main(List<String> args) {
+void main(List<String> args) async {
+  final sw = Stopwatch()..start();
   if (args.length < 3) throw 'Not enough arguments';
   final day = args[0];
   final days = {
@@ -34,5 +35,13 @@ void main(List<String> args) {
   if (!inputFile.existsSync()) throw '$day/${args[1]}.txt does not exist';
   final code = days[day]![part - 1];
   final input = inputFile.readAsLinesSync();
-  print('Result: ${code.run(input)}');
+  final resultOrFuture = code.run(input);
+  final String result;
+  if (resultOrFuture is Future<String>) {
+    result = await resultOrFuture;
+  } else {
+    result = resultOrFuture;
+  }
+  sw.stop();
+  print('Result: $result\nin ${sw.elapsedMicroseconds / 1000} ms');
 }

@@ -84,7 +84,7 @@ final part1 = Part(
 final part2 = Part(
   parser: parseCaves,
   implementation: (caves) {
-    final paths = <Path>[];
+    int paths = 0;
     final start = caves['start']!;
     final toExplore = [
       Path(
@@ -98,7 +98,7 @@ final part2 = Part(
       final lastCave = path.lastCave;
       for (final cave in lastCave.connections) {
         if (cave.isEnd) {
-          paths.add(path);
+          paths += 1;
           continue;
         }
         if (cave.isSmall &&
@@ -117,6 +117,6 @@ final part2 = Part(
       }
     }
 
-    return paths.length.toString();
+    return paths.toString();
   },
 );

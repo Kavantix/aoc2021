@@ -34,12 +34,12 @@ Map<String, Cave> parseCaves(List<String> lines) {
 
 class Path {
   Path({
-    required this.caveIds,
+    required this.caves,
     required this.lastCave,
     required this.hasDoubleSmallCave,
   });
 
-  final List<int> caveIds;
+  final List<Cave?> caves;
   final Cave lastCave;
   final bool hasDoubleSmallCave;
 }
@@ -51,7 +51,10 @@ final part1 = Part(
     final start = caves['start']!;
     final toExplore = Queue<Path>()
       ..add(Path(
-        caveIds: [start.id],
+        caves: [
+          for (final id in range(Cave._nextCaveId))
+            if (id == start.id) start else null
+        ],
         lastCave: start,
         hasDoubleSmallCave: false,
       ));
@@ -63,14 +66,13 @@ final part1 = Part(
         continue;
       }
       for (final cave in lastCave.connections) {
-        if (cave.isSmall && path.caveIds.contains(cave.id)) {
+        if (cave.isSmall && path.caves[cave.id] != null) {
           continue;
         }
+        final newCaves = List.of(path.caves);
+        newCaves[cave.id] = cave;
         toExplore.add(Path(
-          caveIds: [
-            ...path.caveIds,
-            cave.id,
-          ],
+          caves: newCaves,
           lastCave: cave,
           hasDoubleSmallCave: false,
         ));
@@ -88,7 +90,10 @@ final part2 = Part(
     final start = caves['start']!;
     final toExplore = [
       Path(
-        caveIds: [start.id],
+        caves: [
+          for (final id in range(Cave._nextCaveId))
+            if (id == start.id) start else null
+        ],
         lastCave: start,
         hasDoubleSmallCave: false,
       )
@@ -102,17 +107,16 @@ final part2 = Part(
           continue;
         }
         if (cave.isSmall &&
-            (path.hasDoubleSmallCave && path.caveIds.contains(cave.id))) {
+            (path.hasDoubleSmallCave && path.caves[cave.id] != null)) {
           continue;
         }
+        final newCaves = List.of(path.caves);
+        newCaves[cave.id] = cave;
         toExplore.add(Path(
-          caveIds: [
-            ...path.caveIds,
-            cave.id,
-          ],
+          caves: newCaves,
           lastCave: cave,
           hasDoubleSmallCave: path.hasDoubleSmallCave ||
-              (cave.isSmall && path.caveIds.contains(cave.id)),
+              (cave.isSmall && path.caves[cave.id] != null),
         ));
       }
     }

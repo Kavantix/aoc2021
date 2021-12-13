@@ -9,25 +9,47 @@ class Fold {
   final int value;
 }
 
+class Point {
+  Point(this.x, this.y);
+
+  final int x, y;
+
+  Point foldedUpAround(int p) {
+    assert(y != p);
+    if (y < p) return this;
+    return Point(x, p - (y - p));
+  }
+
+  Point foldedLeftAround(int p) {
+    assert(x != p);
+    if (x < p) return this;
+    return Point(p - (x - p), y);
+  }
+}
+
 class Input {
   Input({
     required this.paper,
     required this.folds,
+    required this.points,
   });
   final List<List<int>> paper;
   final List<Fold> folds;
+  final List<Point> points;
 
   static Input fromLines(List<String> lines) {
     final pointLines = lines.takeWhile((l) => l.isNotEmpty).toList();
     final foldLiness = lines.skip(pointLines.length + 1).toList();
-    final points =
-        pointLines.map((l) => l.split(',').map(int.parse).toList()).toList();
-    final maxX = points.map((p) => p[0]).max();
-    final maxY = points.map((p) => p[1]).max();
+    final points = pointLines
+        .map((l) => l.split(',').map(int.parse))
+        .map((l) => Point(l.first, l.last))
+        .toList();
+    final maxX = points.map((p) => p.x).max();
+    final maxY = points.map((p) => p.y).max();
     final paper = List.generate(
         maxY + (maxY.isEven ? 1 : 2), (_) => List.filled(maxX + 1, 0));
     for (final point in points) {
-      paper[point[1]][point[0]] = 1;
+      paper[point.y][point.x] = 1;
     }
     final folds = <Fold>[];
     final foldRegex = RegExp(r'fold along (x|y)=(\d+)');
@@ -45,6 +67,7 @@ class Input {
     return Input(
       paper: paper,
       folds: folds,
+      points: points,
     );
   }
 }
@@ -111,4 +134,28 @@ Part<Input> partWhere({int? max}) => Part(
     );
 
 final part1 = partWhere(max: 1);
-final part2 = partWhere(max: null);
+// final part2 = partWhere(max: null);
+final part2 = Part(
+    parser: Input.fromLines,
+    implementation: (input) {
+      var points = input.points;
+
+      for (final fold in input.folds) {
+        switch (fold.direction) {
+          case FoldDirections.up:
+            points = points.map((p) => p.foldedUpAround(fold.value)).toList();
+            break;
+          case FoldDirections.left:
+            points = points.map((p) => p.foldedLeftAround(fold.value)).toList();
+            break;
+        }
+      }
+
+      final paper = List.generate(points.map((p) => p.y).max() + 1,
+          (_) => List.filled(points.map((p) => p.x).max() + 1, 0));
+      for (final point in points) {
+        paper[point.y][point.x] = 1;
+      }
+      printPaper(paper);
+      return '👆';
+    });

@@ -43,3 +43,5 @@ extension FunctionExtension2<T1, T2, R> on R Function(T1, T2) {
 Iterable<int> range(int to) sync* {
   for (int i = 0; i < to; i++) yield i;
 }
+
+int increment(int i) => i + 1;

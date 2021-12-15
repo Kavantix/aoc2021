@@ -77,8 +77,8 @@ final part2 = Part(
           .toList());
     }
     input[0][0] = 0;
-    final costToReach =
-        List.generate(input.length, (_) => List.filled(input.first.length, 0));
+    final costToReach = List.generate(
+        input.length, (_) => List.filled(input.first.length, maxInt64 ~/ 2));
     final queued = List.generate(
         input.length, (_) => List.filled(input.first.length, false));
     costToReach[input.length - 1][input.first.length - 1] = input.last.last;
@@ -91,30 +91,48 @@ final part2 = Part(
     queued[input.length - 1][input.first.length - 2] = true;
     while (toExplore.isNotEmpty) {
       final point = toExplore.removeFirst();
+      queued[point.y][point.x] = false;
       final risk = input[point.y][point.x];
       int cost = maxInt64;
       if (point.y < input.length - 1) {
         cost = min(cost, risk + costToReach[point.y + 1][point.x]);
       }
+      if (point.y > 0) {
+        cost = min(cost, risk + costToReach[point.y - 1][point.x]);
+      }
       if (point.x < input.first.length - 1) {
         cost = min(cost, risk + costToReach[point.y][point.x + 1]);
       }
-      costToReach[point.y][point.x] = cost;
-      if (point.x > 0 && !queued[point.y][point.x - 1]) {
-        queued[point.y][point.x - 1] = true;
-        toExplore.add(Point(point.x - 1, point.y));
+      if (point.x > 0) {
+        cost = min(cost, risk + costToReach[point.y][point.x - 1]);
       }
-      if (point.y > 0 && !queued[point.y - 1][point.x]) {
-        queued[point.y - 1][point.x] = true;
-        toExplore.add(Point(point.x, point.y - 1));
+      if (costToReach[point.y][point.x] > cost) {
+        costToReach[point.y][point.x] = cost;
+        if (point.x > 0 &&
+            !queued[point.y][point.x - 1] &&
+            cost < costToReach[point.y][point.x - 1]) {
+          queued[point.y][point.x - 1] = true;
+          toExplore.add(Point(point.x - 1, point.y));
+        }
+        if (point.y > 0 &&
+            !queued[point.y - 1][point.x] &&
+            cost < costToReach[point.y - 1][point.x]) {
+          queued[point.y - 1][point.x] = true;
+          toExplore.add(Point(point.x, point.y - 1));
+        }
+        if (point.x < input.first.length - 1 &&
+            !queued[point.y][point.x + 1] &&
+            cost < costToReach[point.y][point.x + 1]) {
+          queued[point.y][point.x + 1] = true;
+          toExplore.add(Point(point.x + 1, point.y));
+        }
+        if (point.y < input.first.length - 1 &&
+            !queued[point.x][point.y + 1] &&
+            cost < costToReach[point.y + 1][point.x]) {
+          queued[point.y + 1][point.x] = true;
+          toExplore.add(Point(point.x, point.y + 1));
+        }
       }
-    }
-    for (final row in input) {
-      print(row.map((c) => c.toString().padLeft(3)));
-    }
-    print('');
-    for (final row in costToReach) {
-      print(row.map((c) => c.toString().padLeft(3)));
     }
     return costToReach[0][0].toString();
   },

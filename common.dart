@@ -10,7 +10,13 @@ class Part<T extends Object?> {
   final T Function(List<String> lines) _parser;
   final FutureOr<String> Function(T) _implementation;
 
-  FutureOr<String> run(List<String> lines) => _implementation(_parser(lines));
+  FutureOr<String> run(List<String> lines) {
+    final sw = Stopwatch()..start();
+    final parsed = _parser(lines);
+    sw.stop();
+    print('Parsing took ${sw.elapsedMicroseconds / 1000} ms');
+    return _implementation(parsed);
+  }
 }
 
 extension ListExtensions<T> on List<T> {
@@ -25,8 +31,10 @@ extension ListExtensions<T> on List<T> {
 
 List<int> parseInts(Iterable<String> values) => values.map(int.parse).toList();
 
+const maxInt64 = 9223372036854775807;
+
 extension IntIterableExtension on Iterable<int> {
-  int min() => fold(9223372036854775807, math.min);
+  int min() => fold(maxInt64, math.min);
   int max() => fold(-9223372036854775808, math.max);
   int sum() => fold(0, (acc, i) => acc + i);
   int product() => isEmpty ? 0 : fold(1, (acc, i) => acc * i);

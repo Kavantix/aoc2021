@@ -14,6 +14,8 @@ abstract class Packet {
   final int typeId;
   final int length;
   PacketTypes get type;
+
+  int evaluate();
 }
 
 class LiteralPacket extends Packet {
@@ -33,6 +35,9 @@ class LiteralPacket extends Packet {
 
   @override
   PacketTypes get type => PacketTypes.literal;
+
+  @override
+  int evaluate() => value;
 }
 
 class OperatorPacket extends Packet {
@@ -50,6 +55,30 @@ class OperatorPacket extends Packet {
   final List<Packet> subPackets;
   @override
   PacketTypes get type => PacketTypes.op;
+
+  @override
+  int evaluate() {
+    switch (typeId) {
+      case 0:
+        return subPackets.map((p) => p.evaluate()).sum();
+      case 1:
+        return subPackets.map((p) => p.evaluate()).product();
+      case 2:
+        return subPackets.map((p) => p.evaluate()).min();
+      case 3:
+        return subPackets.map((p) => p.evaluate()).max();
+      case 5:
+        assert(subPackets.length == 2);
+        return subPackets[0].evaluate() > subPackets[1].evaluate() ? 1 : 0;
+      case 6:
+        assert(subPackets.length == 2);
+        return subPackets[0].evaluate() < subPackets[1].evaluate() ? 1 : 0;
+      case 7:
+        assert(subPackets.length == 2);
+        return subPackets[0].evaluate() == subPackets[1].evaluate() ? 1 : 0;
+    }
+    throw FallThroughError();
+  }
 }
 
 String hexStringToBitStrings(String input) => input
@@ -180,18 +209,8 @@ final part1 = Part(
 );
 
 final part2 = Part(
-  parser: parseInts,
+  parser: (lines) => packetFromHexString(lines.first),
   implementation: (input) {
-    int last = input[0] + input[1] + input[2];
-    int increases = 0;
-
-    for (int i = 0; i < input.length - 2; i++) {
-      final sum = input[i] + input[i + 1] + input[i + 2];
-      if (sum > last) {
-        increases += 1;
-      }
-      last = sum;
-    }
-    return '$increases increases';
+    return input.evaluate().toString();
   },
 );

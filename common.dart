@@ -37,7 +37,7 @@ extension IntIterableExtension on Iterable<int> {
   int min() => fold(maxInt64, math.min);
   int max() => fold(-9223372036854775808, math.max);
   int sum() => fold(0, (acc, i) => acc + i);
-  int product() => isEmpty ? 0 : fold(1, (acc, i) => acc * i);
+  int product() => isEmpty ? 0 : skip(1).fold(first, (acc, i) => acc * i);
 }
 
 extension IterableOfIterableExtension<T> on Iterable<Iterable<T>> {

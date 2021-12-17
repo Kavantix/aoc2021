@@ -17,6 +17,7 @@ import 'day13/day13.dart' as day13;
 import 'day14/day14.dart' as day14;
 import 'day15/day15.dart' as day15;
 import 'day16/day16.dart' as day16;
+import 'day17/day17.dart' as day17;
 
 void main(List<String> args) async {
   final sw = Stopwatch()..start();
@@ -39,6 +40,7 @@ void main(List<String> args) async {
     'day14': [day14.part1, day14.part2],
     'day15': [day15.part1, day15.part2],
     'day16': [day16.part1, day16.part2],
+    'day17': [day17.part1, day17.part2],
   };
   if (!days.containsKey(day)) throw '$day is not a valid day';
   final part = int.tryParse(args[1].replaceFirst('part', ''));

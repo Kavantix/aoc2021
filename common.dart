@@ -48,8 +48,12 @@ extension FunctionExtension2<T1, T2, R> on R Function(T1, T2) {
   R Function(T2) apply(T1 t1) => (T2 t2) => this(t1, t2);
 }
 
-Iterable<int> range(int to) sync* {
-  for (int i = 0; i < to; i++) yield i;
+Iterable<int> range(int i1, [int? i2]) sync* {
+  if (i2 == null) {
+    for (int i = 0; i < i1; i++) yield i;
+  } else {
+    for (int i = i1; i < i2; i++) yield i;
+  }
 }
 
 int increment(int i) => i + 1;

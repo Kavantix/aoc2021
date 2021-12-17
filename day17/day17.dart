@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import '../common.dart';
 
 class Input {
@@ -46,6 +48,29 @@ final part1 = Part(
 final part2 = Part(
   parser: Input.fromLines,
   implementation: (input) {
-    return 'TODO';
+    const maxHeightYVelocity = 107; // Velocity from part 1
+    final minPossibleXVelocity = (sqrt(input.endX * 2).floor()) - 1;
+    assert(
+        minPossibleXVelocity * (minPossibleXVelocity + 1) / 2 >= input.startY);
+    int possibleVelocities = 0;
+    for (final yVelocity in range(input.startY, maxHeightYVelocity + 1)) {
+      for (final xVelocity in range(minPossibleXVelocity - 1, input.endX + 1)) {
+        int x = 0;
+        int dx = xVelocity;
+        int y = 0;
+        int dy = yVelocity;
+        while (y >= input.startY) {
+          if (x <= input.endX && x >= input.startX && y <= input.endY) {
+            possibleVelocities += 1;
+            break;
+          }
+          x += dx;
+          dx += 0.compareTo(dx);
+          y += dy;
+          dy -= 1;
+        }
+      }
+    }
+    return possibleVelocities.toString();
   },
 );

@@ -44,12 +44,18 @@ class Input {
         .map((l) => l.split(',').map(int.parse))
         .map((l) => Point(l.first, l.last))
         .toList();
-    final maxX = points.map((p) => p.x).max();
-    final maxY = points.map((p) => p.y).max();
-    final paper = List.generate(
-        maxY + (maxY.isEven ? 1 : 2), (_) => List.filled(maxX + 1, 0));
-    for (final point in points) {
-      paper[point.y][point.x] = 1;
+    List<List<int>>? paper;
+    if (points.length < 1000) {
+      final maxX = points.map((p) => p.x).max();
+      final maxY = points.map((p) => p.y).max();
+      paper = List.generate(
+          maxY + (maxY.isEven ? 1 : 2), (_) => List.filled(maxX + 1, 0));
+      int count = 0;
+      for (final point in points) {
+        if (count % 1000 == 0) print(count);
+        count += 1;
+        paper[point.y][point.x] = 1;
+      }
     }
     final folds = <Fold>[];
     final foldRegex = RegExp(r'fold along (x|y)=(\d+)');
@@ -65,7 +71,7 @@ class Input {
       }
     }
     return Input(
-      paper: paper,
+      paper: paper ?? [],
       folds: folds,
       points: points,
     );

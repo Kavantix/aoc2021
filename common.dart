@@ -57,3 +57,10 @@ Iterable<int> range(int i1, [int? i2]) sync* {
 }
 
 int increment(int i) => i + 1;
+
+class Tuple<T1, T2> {
+  Tuple(this.value1, this.value2);
+
+  final T1 value1;
+  final T2 value2;
+}

@@ -80,6 +80,8 @@ class Point {
   String toString() => '$x, $y, $z';
 }
 
+int iterations = 0;
+
 class Scanner {
   Scanner({
     required this.name,
@@ -99,35 +101,20 @@ class Scanner {
   }
 
   bool overlappingPointsWith(Scanner other) {
-    int overlappingPoints = 0;
-    final points = this.points.toSet();
-    outer:
     for (final rotation in rotations) {
-      final rotatedOthers = other.points.map(rotation).toList();
-      final offsets = rotatedOthers //
-          .expand((o) => points.map((p) => p - o))
-          .toList();
-      for (final offset in offsets) {
-        for (final otherRotated in rotatedOthers) {
-          final otherOffset = otherRotated + offset;
-          if (otherOffset.x.abs() > 1000 ||
-              otherOffset.y.abs() > 1000 ||
-              otherOffset.z.abs() > 1000) {
-            continue;
-          }
-          if (points.contains(otherOffset)) {
-            overlappingPoints += 1;
-            if (overlappingPoints >= 3) {
-              other.offsetToScanner0 = rotationToScanner0!(offset);
-              other.rotationToScanner0 = rotation;
-              break outer;
-            }
+      final diffCounts = <Point, int>{};
+      for (final otherPoint in other.points.map(rotation)) {
+        for (final point in points) {
+          final diff = point - otherPoint;
+          if (diffCounts.update(diff, increment, ifAbsent: () => 1) >= 3) {
+            other.offsetToScanner0 = rotationToScanner0!(diff);
+            other.rotationToScanner0 = rotation;
+            return true;
           }
         }
-        overlappingPoints = 0;
       }
     }
-    return overlappingPoints > 1;
+    return false;
   }
 }
 

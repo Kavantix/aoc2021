@@ -26,8 +26,8 @@ final rotations = <Point Function(Point)>[
   (p) => Point(p.y, p.x, -p.z), //y+
   (p) => Point(-p.y, p.x, p.z), //y-
   // x- is up
-  (p) => Point(p.y, p.x, p.z), //y+
-  (p) => Point(-p.y, p.x, -p.z), //y-
+  (p) => Point(p.y, -p.x, p.z), //y+
+  (p) => Point(-p.y, -p.x, -p.z), //y-
 
   // y+ is up
   (p) => Point(p.z, p.y, -p.x), //z+
@@ -62,7 +62,7 @@ class Point {
       other is Point && other.x == x && other.y == y && other.z == z;
 
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => x.hashCode + (y.hashCode >>> 16) + (z.hashCode >>> 32);
+  int get hashCode => x + (y << 16) + (z << 32);
 
   Point operator +(Point other) => Point(
         x + other.x,
@@ -149,34 +149,27 @@ final part1 = Part(
     input[0].rotationToScanner0 = (p) => p;
     final matchedScanners = [input[0]];
     final scannersToExplore = input.skip(1).toList();
-    int lastLength = scannersToExplore.length;
-    while (scannersToExplore.isNotEmpty) {
-      print('Scanners to explore: ${scannersToExplore.length}');
-      for (int j = 0; j < matchedScanners.length; j++) {
-        final comparisonScanner = matchedScanners[j];
-        print('Compairing against ${comparisonScanner.name}');
-        for (int i = scannersToExplore.length - 1;
-            i >= 0 && scannersToExplore.isNotEmpty;
-            i--) {
-          final scanner = scannersToExplore[i];
-          final matches = comparisonScanner.overlappingPointsWith(scanner);
-          if (matches) {
-            assert(comparisonScanner.offsetToScanner0 != null);
-            assert(scanner.offsetToScanner0 != null);
-            scanner.offsetToScanner0 =
-                comparisonScanner.offsetToScanner0! + scanner.offsetToScanner0!;
-            final rotation = scanner.rotationToScanner0!;
-            scanner.rotationToScanner0 =
-                (p) => comparisonScanner.rotationToScanner0!(rotation(p));
-            scannersToExplore.removeAt(i);
-            matchedScanners.add(scanner);
-            points.addAll(scanner.points.map((p) =>
-                scanner.rotationToScanner0!(p) + scanner.offsetToScanner0!));
-          }
+    for (int j = 0; j < matchedScanners.length; j++) {
+      final comparisonScanner = matchedScanners[j];
+      for (int i = scannersToExplore.length - 1;
+          i >= 0 && scannersToExplore.isNotEmpty;
+          i--) {
+        final scanner = scannersToExplore[i];
+        final matches = comparisonScanner.overlappingPointsWith(scanner);
+        if (matches) {
+          assert(comparisonScanner.offsetToScanner0 != null);
+          assert(scanner.offsetToScanner0 != null);
+          scanner.offsetToScanner0 =
+              comparisonScanner.offsetToScanner0! + scanner.offsetToScanner0!;
+          final rotation = scanner.rotationToScanner0!;
+          scanner.rotationToScanner0 =
+              (p) => comparisonScanner.rotationToScanner0!(rotation(p));
+          scannersToExplore.removeAt(i);
+          matchedScanners.add(scanner);
+          points.addAll(scanner.points.map((p) =>
+              scanner.rotationToScanner0!(p) + scanner.offsetToScanner0!));
         }
       }
-      assert(lastLength != scannersToExplore.length);
-      lastLength = scannersToExplore.length;
     }
     int maxDistance = 0;
     for (final i in range(input.length - 1)) {

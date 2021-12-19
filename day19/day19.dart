@@ -171,4 +171,4 @@ final part1 = Part(
   },
 );
 
-final part2 = part1;
+final part2 = Part(parser: (l) => null, implementation: (_) => 'See part 1');

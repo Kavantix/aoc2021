@@ -76,18 +76,14 @@ class Point {
         z - other.z,
       );
 
-  Point operator *(Point other) => Point(
-        x * other.x,
-        y * other.y,
-        z * other.z,
-      );
-
   int sum() => x + y + z;
   int absSum() => x.abs() + y.abs() + z.abs();
 
   @override
   String toString() => '$x, $y, $z';
 }
+
+int dotProductLength(Point p) => p.x * p.x + p.y * p.y + p.z * p.z;
 
 int iterations = 0;
 
@@ -102,11 +98,11 @@ class Scanner {
   Point? offsetToScanner0;
   Point Function(Point)? rotationToScanner0;
 
-  late final distances = [
+  late final distances = {
     for (final i in range(points.length))
       for (final j in range(points.length))
-        if (i != j) points[j] - points[i],
-  ].map((p) => (p * p).sum()).toSet();
+        if (i != j) dotProductLength(points[j] - points[i]),
+  };
 
   factory Scanner.fromLines(Iterable<String> lines) {
     return Scanner(

@@ -100,37 +100,34 @@ class Scanner {
 
   bool overlappingPointsWith(Scanner other) {
     int overlappingPoints = 0;
+    final points = this.points.toSet();
     outer:
     for (final rotation in rotations) {
-      for (final p in points) {
-        for (final otherPoint in other.points) {
-          final otherRotated = rotation(otherPoint);
-          final offset = p - otherRotated;
-          assert(p - offset == otherRotated);
-          // if (offset == testOffset) print('offset: $offset');
-          for (final otherPoint in other.points) {
-            final otherRotated = rotation(otherPoint);
-            final otherOffset = otherRotated + offset;
-            for (final point in points) {
-              if (point == otherOffset) {
-                overlappingPoints += 1;
-              }
-              if (overlappingPoints >= 3) break;
+      final rotatedOthers = other.points.map(rotation).toList();
+      final offsets = rotatedOthers //
+          .expand((o) => points.map((p) => p - o))
+          .toList();
+      for (final offset in offsets) {
+        for (final otherRotated in rotatedOthers) {
+          final otherOffset = otherRotated + offset;
+          if (otherOffset.x.abs() > 1000 ||
+              otherOffset.y.abs() > 1000 ||
+              otherOffset.z.abs() > 1000) {
+            continue;
+          }
+          if (points.contains(otherOffset)) {
+            overlappingPoints += 1;
+            if (overlappingPoints >= 3) {
+              other.offsetToScanner0 = rotationToScanner0!(offset);
+              other.rotationToScanner0 = rotation;
+              break outer;
             }
           }
-          if (overlappingPoints >= 3) {
-            other.offsetToScanner0 = rotationToScanner0!(offset);
-            other.rotationToScanner0 = rotation;
-            // for (final point in points) {
-            //   result.add(rotationToScanner0!(point) + offsetToScanner0!);
-            // }
-            break outer;
-          }
-          overlappingPoints = 0;
         }
+        overlappingPoints = 0;
       }
     }
-    return overlappingPoints >= 3;
+    return overlappingPoints > 1;
   }
 }
 

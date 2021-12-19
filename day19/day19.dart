@@ -76,6 +76,15 @@ class Point {
         z - other.z,
       );
 
+  Point operator *(Point other) => Point(
+        x * other.x,
+        y * other.y,
+        z * other.z,
+      );
+
+  int sum() => x + y + z;
+  int absSum() => x.abs() + y.abs() + z.abs();
+
   @override
   String toString() => '$x, $y, $z';
 }
@@ -93,6 +102,12 @@ class Scanner {
   Point? offsetToScanner0;
   Point Function(Point)? rotationToScanner0;
 
+  late final distances = [
+    for (final i in range(points.length))
+      for (final j in range(points.length))
+        if (i != j) points[j] - points[i],
+  ].map((p) => (p * p).sum()).toSet();
+
   factory Scanner.fromLines(Iterable<String> lines) {
     return Scanner(
       name: lines.first,
@@ -101,6 +116,7 @@ class Scanner {
   }
 
   bool overlappingPointsWith(Scanner other) {
+    if (distances.intersection(other.distances).length < 12) return false;
     for (final rotation in rotations) {
       final diffCounts = <Point, int>{};
       for (final otherPoint in other.points.map(rotation)) {
@@ -162,7 +178,7 @@ final part1 = Part(
     for (final i in range(input.length - 1)) {
       for (final j in range(i + 1, input.length)) {
         final diff = input[j].offsetToScanner0! - input[i].offsetToScanner0!;
-        final distance = diff.x.abs() + diff.y.abs() + diff.z.abs();
+        final distance = diff.absSum();
         maxDistance = max(maxDistance, distance);
       }
     }

@@ -73,33 +73,40 @@ void printImage(Iterable<Iterable<int>> image) {
 final part1 = Part(
   parser: Input.fromLines,
   implementation: (input) {
+    final imageWidth = input.image.first.length;
+    final imageHeight = input.image.length;
     var image = input.image;
-    final imageWidth = image.first.length;
-    final imageHeight = image.length;
     // printImage(image);
 
     int infinitePixel = 0;
     for (final _ in range(2)) {
       infinitePixel = input.instructions[infinitePixel * 511];
-      image = [
-        [for (final _ in range(imageWidth)) infinitePixel],
-        for (final y in range(1, imageHeight - 1))
-          [
-            infinitePixel,
-            ...[
-              for (final x in range(1, imageWidth - 1))
-                input.instructions[numberForKernel(
-                  image
-                      .skip(y - 1)
-                      .take(3)
-                      .map((line) => line.skip(x - 1).take(3)),
-                )],
-            ],
-            infinitePixel,
-          ],
-        [for (final _ in range(imageWidth)) infinitePixel],
-      ];
-      ;
+      final newImage =
+          List.generate(imageWidth, (_) => List.filled(imageHeight, 0));
+      for (final i in range(imageWidth)) {
+        newImage[0][i] = infinitePixel;
+        newImage[imageHeight - 1][i] = infinitePixel;
+      }
+      for (final i in range(imageHeight)) {
+        newImage[i][0] = infinitePixel;
+        newImage[i][imageWidth - 1] = infinitePixel;
+      }
+      for (final x in range(1, imageWidth - 1)) {
+        int kernel =
+            ((image[0][x - 1] << 2) + (image[0][x] << 1) + image[0][x + 1]) <<
+                3;
+        kernel += (image[1][x - 1] << 2) + (image[1][x] << 1) + image[1][x + 1];
+        for (final y in range(1, imageHeight - 1)) {
+          kernel = kernel << 3;
+          kernel = (kernel +
+                  (image[y + 1][x - 1] << 2) +
+                  (image[y + 1][x] << 1) +
+                  image[y + 1][x + 1]) &
+              511;
+          newImage[y][x] = input.instructions[kernel];
+        }
+      }
+      image = newImage;
       // printImage(image);
     }
 
@@ -118,24 +125,32 @@ final part2 = Part(
     int infinitePixel = 0;
     for (final _ in range(50)) {
       infinitePixel = input.instructions[infinitePixel * 511];
-      image = [
-        [for (final _ in range(imageWidth)) infinitePixel],
-        for (final y in range(1, imageHeight - 1))
-          [
-            infinitePixel,
-            ...[
-              for (final x in range(1, imageWidth - 1))
-                input.instructions[numberForKernel(
-                  image
-                      .skip(y - 1)
-                      .take(3)
-                      .map((line) => line.skip(x - 1).take(3)),
-                )],
-            ],
-            infinitePixel,
-          ],
-        [for (final _ in range(imageWidth)) infinitePixel],
-      ];
+      final newImage =
+          List.generate(imageWidth, (_) => List.filled(imageHeight, 0));
+      for (final i in range(imageWidth)) {
+        newImage[0][i] = infinitePixel;
+        newImage[imageHeight - 1][i] = infinitePixel;
+      }
+      for (final i in range(imageHeight)) {
+        newImage[i][0] = infinitePixel;
+        newImage[i][imageWidth - 1] = infinitePixel;
+      }
+      for (final x in range(1, imageWidth - 1)) {
+        int kernel =
+            ((image[0][x - 1] << 2) + (image[0][x] << 1) + image[0][x + 1]) <<
+                3;
+        kernel += (image[1][x - 1] << 2) + (image[1][x] << 1) + image[1][x + 1];
+        for (final y in range(1, imageHeight - 1)) {
+          kernel = kernel << 3;
+          kernel = (kernel +
+                  (image[y + 1][x - 1] << 2) +
+                  (image[y + 1][x] << 1) +
+                  image[y + 1][x + 1]) &
+              511;
+          newImage[y][x] = input.instructions[kernel];
+        }
+      }
+      image = newImage;
     }
     // printImage(image);
     return image.flatten().sum().toString();

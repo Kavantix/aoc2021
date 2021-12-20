@@ -103,6 +103,18 @@ class Scanner {
       for (final j in range(points.length))
         if (i != j) dotProductLength(points[j] - points[i]),
   };
+  late final distancesLists = [
+    for (final i in range(points.length))
+      [
+        for (final j in range(points.length))
+          if (i != j) dotProductLength(points[j] - points[i]),
+      ],
+  ];
+
+  late final rotatedPoints = List.generate(
+    rotations.length,
+    (r) => List.generate(points.length, (i) => rotations[r](points[i])),
+  );
 
   factory Scanner.fromLines(Iterable<String> lines) {
     return Scanner(
@@ -112,17 +124,33 @@ class Scanner {
   }
 
   bool overlappingPointsWith(Scanner other) {
-    if (distances.intersection(other.distances).length < 12) return false;
-    for (final rotation in rotations) {
+    final possibleMatches = distances.intersection(other.distances);
+    if (possibleMatches.length < 12) return false;
+    final points = <Point>[];
+    for (int i = 0; i < this.points.length; i++) {
+      if (distancesLists[i].any(possibleMatches.contains)) {
+        points.add(this.points[i]);
+      }
+    }
+    final otherPoints = <Point>[];
+    for (int j = 0; j < other.points.length; j++) {
+      if (other.distancesLists[j].any(possibleMatches.contains)) {
+        otherPoints.add(other.points[j]);
+      }
+    }
+    for (int i = 0; i < rotations.length; i++) {
+      final rotation = rotations[i];
       final diffCounts = <Point, int>{};
-      for (final otherPoint in other.points.map(rotation)) {
-        for (final point in points) {
-          final diff = point - otherPoint;
-          if (diffCounts.update(diff, increment, ifAbsent: () => 1) >= 3) {
+      for (int j = 0; j < otherPoints.length; j++) {
+        for (int k = 0; k < points.length; k++) {
+          final diff = points[k] - rotation(otherPoints[j]);
+          final value = (diffCounts[diff] ?? 0) + 1;
+          if (value >= 3) {
             other.offsetToScanner0 = rotationToScanner0!(diff);
             other.rotationToScanner0 = rotation;
             return true;
           }
+          diffCounts[diff] = value;
         }
       }
     }
@@ -148,6 +176,12 @@ final part1 = Part(
     input[0].rotationToScanner0 = (p) => p;
     final matchedScanners = [input[0]];
     final scannersToExplore = input.skip(1).toList();
+    final sw = Stopwatch()..start();
+    for (final scanner in input) {
+      if (scanner.distances.length > 100000) print('fwf');
+    }
+    sw.stop();
+    print('Calculating distances took ${sw.elapsedMicroseconds / 1000} ms');
     for (int j = 0; j < matchedScanners.length; j++) {
       final comparisonScanner = matchedScanners[j];
       for (int i = scannersToExplore.length - 1;

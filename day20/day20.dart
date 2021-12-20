@@ -45,8 +45,20 @@ class Input {
   }
 }
 
-int numberForKernel(Iterable<Iterable<int>> kernel) =>
-    int.parse(kernel.flatten().join(), radix: 2);
+int numberForKernel(Iterable<Iterable<int>> kernel) {
+  final numbers = kernel.flatten().iterator;
+  int result = 0;
+  result += (numbers..moveNext()).current << 8;
+  result += (numbers..moveNext()).current << 7;
+  result += (numbers..moveNext()).current << 6;
+  result += (numbers..moveNext()).current << 5;
+  result += (numbers..moveNext()).current << 4;
+  result += (numbers..moveNext()).current << 3;
+  result += (numbers..moveNext()).current << 2;
+  result += (numbers..moveNext()).current << 1;
+  result += (numbers..moveNext()).current;
+  return result;
+}
 
 void printImage(Iterable<Iterable<int>> image) {
   for (final line in image) {

@@ -135,19 +135,46 @@ final part2 = Part(
         newImage[i][0] = infinitePixel;
         newImage[i][imageWidth - 1] = infinitePixel;
       }
-      for (final x in range(1, imageWidth - 1)) {
-        int kernel =
+      for (final x in range(1, imageWidth - 2, 2)) {
+        int kernel1 =
             ((image[0][x - 1] << 2) + (image[0][x] << 1) + image[0][x + 1]) <<
                 3;
-        kernel += (image[1][x - 1] << 2) + (image[1][x] << 1) + image[1][x + 1];
-        for (final y in range(1, imageHeight - 1)) {
-          kernel = kernel << 3;
-          kernel = (kernel +
+        kernel1 +=
+            (image[1][x - 1] << 2) + (image[1][x] << 1) + image[1][x + 1];
+        int kernel2 =
+            ((image[0][x] << 2) + (image[0][x + 1] << 1) + image[0][x + 2]) <<
+                3;
+        kernel2 +=
+            (image[1][x] << 2) + (image[1][x + 1] << 1) + image[1][x + 2];
+        for (final y in range(1, imageHeight - 2, 2)) {
+          kernel1 = kernel1 << 3;
+          kernel1 = (kernel1 +
                   (image[y + 1][x - 1] << 2) +
                   (image[y + 1][x] << 1) +
                   image[y + 1][x + 1]) &
               511;
-          newImage[y][x] = input.instructions[kernel];
+          kernel2 = kernel2 << 3;
+          kernel2 = (kernel2 +
+                  (image[y + 1][x] << 2) +
+                  (image[y + 1][x + 1] << 1) +
+                  image[y + 1][x + 2]) &
+              511;
+          newImage[y][x] = input.instructions[kernel1];
+          newImage[y][x + 1] = input.instructions[kernel2];
+          kernel1 = kernel1 << 3;
+          kernel1 = (kernel1 +
+                  (image[y + 2][x - 1] << 2) +
+                  (image[y + 2][x] << 1) +
+                  image[y + 2][x + 1]) &
+              511;
+          kernel2 = kernel2 << 3;
+          kernel2 = (kernel2 +
+                  (image[y + 2][x] << 2) +
+                  (image[y + 2][x + 1] << 1) +
+                  image[y + 2][x + 2]) &
+              511;
+          newImage[y + 1][x] = input.instructions[kernel1];
+          newImage[y + 1][x + 1] = input.instructions[kernel2];
         }
       }
       image = newImage;

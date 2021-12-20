@@ -1,6 +1,10 @@
-import 'dart:math';
+import 'dart:typed_data';
 
 import '../common.dart';
+
+int mapping(String c) => c == '#' ? 1 : 0;
+
+const imageSize = 204;
 
 class Input {
   Input({
@@ -14,32 +18,24 @@ class Input {
   factory Input.fromLines(List<String> lines) {
     assert(lines.first.length == 512);
     assert(lines[1].isEmpty);
-    final mapping = (String c) {
-      switch (c) {
-        case '#':
-          return 1;
-        case '.':
-          return 0;
-      }
-      throw FallThroughError();
-    };
+    assert(lines.length - 2 == lines[2].length);
 
-    final imageWidth = lines[2].length;
-    const padding = 104;
+    const imageWidth = imageSize;
+    final padding = imageSize - lines[2].length;
 
     return Input(
-      instructions: lines.first.split('').map(mapping).toList(),
+      instructions:
+          Uint8List.fromList(lines.first.split('').map(mapping).toList()),
       image: [
-        for (final _ in range(padding ~/ 2))
-          [for (final _ in range(imageWidth + padding)) 0],
-        for (final line in lines.skip(2))
-          [
-            for (final _ in range(padding ~/ 2)) 0,
-            ...line.split('').map(mapping),
-            for (final _ in range(padding ~/ 2)) 0,
-          ],
-        for (final _ in range(padding ~/ 2))
-          [for (final _ in range(imageWidth + padding)) 0],
+        for (int i = 0; i < padding ~/ 2; i++)
+          List.generate(imageSize, (_) => 0),
+        for (int l = 2; l < lines.length; l++)
+          List.generate(imageSize, (x) {
+            if (x < padding ~/ 2 || x >= imageWidth - padding ~/ 2) return 0;
+            return mapping(lines[l][x - padding ~/ 2]);
+          }),
+        for (int i = 0; i < padding ~/ 2; i++)
+          List.generate(imageSize, (_) => 0),
       ],
     );
   }
@@ -72,106 +68,54 @@ void printImage(Iterable<Iterable<int>> image) {
 
 final part1 = Part(
   parser: Input.fromLines,
-  implementation: (input) {
-    final imageWidth = input.image.first.length;
-    final imageHeight = input.image.length;
-    var image = input.image;
-    // printImage(image);
-
-    int infinitePixel = 0;
-    for (final _ in range(2)) {
-      infinitePixel = input.instructions[infinitePixel * 511];
-      final newImage =
-          List.generate(imageWidth, (_) => List.filled(imageHeight, 0));
-      for (final i in range(imageWidth)) {
-        newImage[0][i] = infinitePixel;
-        newImage[imageHeight - 1][i] = infinitePixel;
-      }
-      for (final i in range(imageHeight)) {
-        newImage[i][0] = infinitePixel;
-        newImage[i][imageWidth - 1] = infinitePixel;
-      }
-      for (final x in range(1, imageWidth - 1)) {
-        int kernel =
-            ((image[0][x - 1] << 2) + (image[0][x] << 1) + image[0][x + 1]) <<
-                3;
-        kernel += (image[1][x - 1] << 2) + (image[1][x] << 1) + image[1][x + 1];
-        for (final y in range(1, imageHeight - 1)) {
-          kernel = kernel << 3;
-          kernel = (kernel +
-                  (image[y + 1][x - 1] << 2) +
-                  (image[y + 1][x] << 1) +
-                  image[y + 1][x + 1]) &
-              511;
-          newImage[y][x] = input.instructions[kernel];
-        }
-      }
-      image = newImage;
-      // printImage(image);
-    }
-
-    return image.flatten().sum().toString();
-  },
+  implementation: (input) => imageAfter(2, input).flatten().sum().toString(),
 );
 
 final part2 = Part(
   parser: Input.fromLines,
-  implementation: (input) {
-    var image = input.image;
-    final imageWidth = image.first.length;
-    final imageHeight = image.length;
-    // printImage(image);
+  implementation: (input) => imageAfter(50, input).flatten().sum().toString(),
+);
 
+List<List<int>> imageAfter(int iterations, Input input) {
+  var image = input.image;
+  const imageWidth = imageSize;
+  const imageHeight = imageSize;
+  // printImage(image);
+
+  {
     int infinitePixel = 0;
-    for (final _ in range(50)) {
+    var backImage =
+        List.generate(imageHeight, (_) => List.generate(imageWidth, (_) => 0));
+    for (final _ in range(iterations)) {
       infinitePixel = input.instructions[infinitePixel * 511];
-      final newImage = List.generate(
-          imageHeight, (_) => List.filled(imageWidth, infinitePixel));
-      for (int x = 1; x < imageWidth - 2; x += 2) {
-        int kernel1 =
-            ((image[0][x - 1] << 2) + (image[0][x] << 1) + image[0][x + 1]) <<
-                3;
-        kernel1 +=
-            (image[1][x - 1] << 2) + (image[1][x] << 1) + image[1][x + 1];
-        int kernel2 =
-            ((image[0][x] << 2) + (image[0][x + 1] << 1) + image[0][x + 2]) <<
-                3;
-        kernel2 +=
-            (image[1][x] << 2) + (image[1][x + 1] << 1) + image[1][x + 2];
-        for (int y = 1; y < imageHeight - 2; y += 2) {
-          kernel1 = kernel1 << 3;
-          kernel1 = (kernel1 +
+      for (int y = 0; y < imageHeight; y++) {
+        backImage[y][0] = infinitePixel;
+        backImage[y][imageWidth - 1] = infinitePixel;
+      }
+      for (int x = 0; x < imageWidth; x++) {
+        backImage[0][x] = infinitePixel;
+        backImage[imageHeight - 1][x] = infinitePixel;
+      }
+      for (int x = 1; x < imageWidth - 1; x += 1) {
+        int kernel =
+            (((image[0][x - 1] << 2) + (image[0][x] << 1) + image[0][x + 1]) <<
+                    3) +
+                (image[1][x - 1] << 2) +
+                (image[1][x] << 1) +
+                image[1][x + 1];
+        for (int y = 1; y < imageHeight - 1; y += 1) {
+          kernel = ((kernel << 3) +
                   (image[y + 1][x - 1] << 2) +
                   (image[y + 1][x] << 1) +
                   image[y + 1][x + 1]) &
               511;
-          kernel2 = kernel2 << 3;
-          kernel2 = (kernel2 +
-                  (image[y + 1][x] << 2) +
-                  (image[y + 1][x + 1] << 1) +
-                  image[y + 1][x + 2]) &
-              511;
-          newImage[y][x] = input.instructions[kernel1];
-          newImage[y][x + 1] = input.instructions[kernel2];
-          kernel1 = kernel1 << 3;
-          kernel1 = (kernel1 +
-                  (image[y + 2][x - 1] << 2) +
-                  (image[y + 2][x] << 1) +
-                  image[y + 2][x + 1]) &
-              511;
-          kernel2 = kernel2 << 3;
-          kernel2 = (kernel2 +
-                  (image[y + 2][x] << 2) +
-                  (image[y + 2][x + 1] << 1) +
-                  image[y + 2][x + 2]) &
-              511;
-          newImage[y + 1][x] = input.instructions[kernel1];
-          newImage[y + 1][x + 1] = input.instructions[kernel2];
+          backImage[y][x] = input.instructions[kernel];
         }
       }
-      image = newImage;
+      final temp = image;
+      image = backImage;
+      backImage = temp;
     }
-    // printImage(image);
-    return image.flatten().sum().toString();
-  },
-);
+  }
+  return image;
+}

@@ -125,17 +125,9 @@ final part2 = Part(
     int infinitePixel = 0;
     for (final _ in range(50)) {
       infinitePixel = input.instructions[infinitePixel * 511];
-      final newImage =
-          List.generate(imageWidth, (_) => List.filled(imageHeight, 0));
-      for (final i in range(imageWidth)) {
-        newImage[0][i] = infinitePixel;
-        newImage[imageHeight - 1][i] = infinitePixel;
-      }
-      for (final i in range(imageHeight)) {
-        newImage[i][0] = infinitePixel;
-        newImage[i][imageWidth - 1] = infinitePixel;
-      }
-      for (final x in range(1, imageWidth - 2, 2)) {
+      final newImage = List.generate(
+          imageHeight, (_) => List.filled(imageWidth, infinitePixel));
+      for (int x = 1; x < imageWidth - 2; x += 2) {
         int kernel1 =
             ((image[0][x - 1] << 2) + (image[0][x] << 1) + image[0][x + 1]) <<
                 3;
@@ -146,7 +138,7 @@ final part2 = Part(
                 3;
         kernel2 +=
             (image[1][x] << 2) + (image[1][x + 1] << 1) + image[1][x + 2];
-        for (final y in range(1, imageHeight - 2, 2)) {
+        for (int y = 1; y < imageHeight - 2; y += 2) {
           kernel1 = kernel1 << 3;
           kernel1 = (kernel1 +
                   (image[y + 1][x - 1] << 2) +

@@ -114,29 +114,29 @@ final part2 = Part(
       cost += risk;
       if (costToReach[point.y][point.x] > cost) {
         costToReach[point.y][point.x] = cost;
-        if (point.x > 0 &&
-            !queued[point.y][point.x - 1] &&
-            cost < costToReach[point.y][point.x - 1]) {
-          queued[point.y][point.x - 1] = true;
-          toExplore.add(Point(point.x - 1, point.y));
-        }
         if (point.y > 0 &&
             !queued[point.y - 1][point.x] &&
             cost < costToReach[point.y - 1][point.x]) {
           queued[point.y - 1][point.x] = true;
           toExplore.add(Point(point.x, point.y - 1));
         }
-        if (point.x < width - 1 &&
-            !queued[point.y][point.x + 1] &&
-            cost < costToReach[point.y][point.x + 1]) {
-          queued[point.y][point.x + 1] = true;
-          toExplore.add(Point(point.x + 1, point.y));
-        }
         if (point.y < width - 1 &&
             !queued[point.x][point.y + 1] &&
             cost < costToReach[point.y + 1][point.x]) {
           queued[point.y + 1][point.x] = true;
           toExplore.add(Point(point.x, point.y + 1));
+        }
+        if (point.x > 0 &&
+            !queued[point.y][point.x - 1] &&
+            cost < costToReach[point.y][point.x - 1]) {
+          queued[point.y][point.x - 1] = true;
+          toExplore.add(Point(point.x - 1, point.y));
+        }
+        if (point.x < width - 1 &&
+            !queued[point.y][point.x + 1] &&
+            cost < costToReach[point.y][point.x + 1]) {
+          queued[point.y][point.x + 1] = true;
+          toExplore.add(Point(point.x + 1, point.y));
         }
       }
     }

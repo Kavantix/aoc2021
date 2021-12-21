@@ -1,10 +1,2 @@
-199
-200
-208
-210
-200
-207
-240
-269
-260
-263
+Player 1 starting position: 4
+Player 2 starting position: 8

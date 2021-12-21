@@ -176,12 +176,6 @@ final part2 = Part(
     input[0].rotationToScanner0 = (p) => p;
     final matchedScanners = [input[0]];
     final scannersToExplore = input.skip(1).toList();
-    final sw = Stopwatch()..start();
-    for (final scanner in input) {
-      if (scanner.distances.length > 100000) print('fwf');
-    }
-    sw.stop();
-    print('Calculating distances took ${sw.elapsedMicroseconds / 1000} ms');
     for (int j = 0; j < matchedScanners.length; j++) {
       final comparisonScanner = matchedScanners[j];
       for (int i = scannersToExplore.length - 1;

@@ -158,7 +158,7 @@ class Scanner {
   }
 }
 
-final part1 = Part(
+final part2 = Part(
   parser: (lines) {
     int offset = 0;
     final scanners = <Scanner>[];
@@ -217,4 +217,4 @@ final part1 = Part(
   },
 );
 
-final part2 = Part(parser: (l) => null, implementation: (_) => 'See part 1');
+final part1 = Part(parser: (l) => null, implementation: (_) => 'See part 2');

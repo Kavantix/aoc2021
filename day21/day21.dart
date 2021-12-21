@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:math';
+import 'dart:typed_data';
 
 import '../common.dart';
 
@@ -49,35 +50,81 @@ final dieCounts = () {
   ];
 }();
 
+class Version {
+  Version(
+    this.score1,
+    this.position1,
+    this.score2,
+    this.position2,
+    this.universes,
+  );
+  final int score1;
+  final int position1;
+  final int score2;
+  final int position2;
+  int universes;
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode =>
+      position1 + (score1 << 8) + (score2 << 16) + (position2 << 24);
+
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(covariant Version other) =>
+      other.position2 == position2 &&
+      other.position1 == position1 &&
+      other.score2 == score2 &&
+      other.score1 == score1;
+}
+
 final part2 = Part(
   parser: (lines) =>
       lines.map((l) => int.parse(l.split(' ').last) - 1).toList(),
   implementation: (input) {
-    final universesToExplore = Queue.of([
-      [0, input[0], 0, input[1], 1]
-    ]);
+    final versionsToExplore = HashSet<Version>()
+      ..add(
+        Version(0, input[0], 0, input[1], 1),
+      );
     int universes1 = 0;
     int universes2 = 0;
     int iterations = 0;
-    while (universesToExplore.isNotEmpty) {
-      final universe = universesToExplore.removeLast();
+    print(dieCounts);
+    // final memo = <int, int>{};
+    while (versionsToExplore.isNotEmpty) {
+      final version = versionsToExplore.first;
+      versionsToExplore.remove(version);
+      // memo.update(
+      //   version.position1 +
+      //       (version.score1 << 8) +
+      //       (version.score2 << 16) +
+      //       (version.position2 << 24),
+      //   increment,
+      //   ifAbsent: () => 1,
+      // );
       for (int die1 = 3; die1 <= 9; die1++) {
-        final universes = universe[4] * dieCounts[die1];
-        final position1 = (universe[1] + die1) % 10;
-        final score1 = universe[0] + position1 + 1;
+        final universes = version.universes * dieCounts[die1];
+        final position1 = (version.position1 + die1) % 10;
+        final score1 = version.score1 + position1 + 1;
         if (score1 < 21) {
           for (int die2 = 3; die2 <= 9; die2++) {
-            final position2 = (universe[3] + die2) % 10;
-            final score2 = universe[2] + position2 + 1;
+            final position2 = (version.position2 + die2) % 10;
+            final score2 = version.score2 + position2 + 1;
             iterations += 1;
             if (score2 < 21) {
-              universesToExplore.add([
+              final newVersion = Version(
                 score1,
                 position1,
                 score2,
                 position2,
-                universes * dieCounts[die2]
-              ]);
+                universes * dieCounts[die2],
+              );
+              if (versionsToExplore.contains(newVersion)) {
+                final other = versionsToExplore.lookup(newVersion)!;
+                other.universes += newVersion.universes;
+                // assert(other.universes == newVersion.universes);
+              } else {
+                versionsToExplore.add(newVersion);
+              }
             } else {
               universes2 += universes * dieCounts[die2];
             }

@@ -24,6 +24,7 @@ import 'day18/day18.dart' as day18;
 import 'day19/day19.dart' as day19;
 import 'day20/day20.dart' as day20;
 import 'day21/day21.dart' as day21;
+import 'day22/day22.dart' as day22;
 import 'simple_isolate.dart';
 
 final days = {
@@ -48,6 +49,7 @@ final days = {
   'day19': [day19.part1, day19.part2],
   'day20': [day20.part1, day20.part2],
   'day21': [day21.part1, day21.part2],
+  'day22': [day22.part1, day22.part2],
 };
 
 void main(List<String> args) async {

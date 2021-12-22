@@ -1,10 +1,14 @@
-import 'dart:math';
-
 import '../common.dart';
 
 class Cube {
-  const Cube(
-      this.startX, this.startY, this.startZ, this.endX, this.endY, this.endZ);
+  Cube(
+    this.startX,
+    this.startY,
+    this.startZ,
+    this.endX,
+    this.endY,
+    this.endZ,
+  );
 
   Cube.fromList(List<List<int>> p)
       : startX = p[0][0],
@@ -21,17 +25,14 @@ class Cube {
 
   bool overlapsWith(Cube other) =>
       other.startX <= endX &&
-      other.endX >= other.startX &&
+      other.endX >= startX &&
       other.startY <= endY &&
       other.endY >= startY &&
       other.startZ <= endZ &&
       other.endZ >= startZ;
 
-  int get volume => startX > endX || startY > endY || startZ > endZ
-      ? 0
-      : ((endX - startX).abs() + 1) *
-          ((endY - startY).abs() + 1) *
-          ((endZ - startZ).abs() + 1);
+  int get volume =>
+      (endX - startX + 1) * (endY - startY + 1) * (endZ - startZ + 1);
 
   Iterable<Cube> cubesAfterSubtracting(Cube other) {
     other = Cube(
@@ -292,14 +293,7 @@ class Cube {
       brf,
       brm,
       brb,
-    ].where((c) => c.volume > 0).map((c) => Cube(
-          max(startX, c.startX),
-          max(startY, c.startY),
-          max(startZ, c.startZ),
-          min(endX, c.endX),
-          min(endY, c.endY),
-          min(endZ, c.endZ),
-        ));
+    ].where((c) => c.volume > 0);
   }
 }
 
@@ -347,13 +341,10 @@ final partWhere = (bool Function(Instruction i) test) => Part(
             }
             cubes.addAll(newCubes);
           } else {
-            final oldSum = cubes.map((c) => c.volume).sum();
             for (final overlapping in overlappingCubes) {
               cubes.remove(overlapping);
               cubes.addAll(overlapping.cubesAfterSubtracting(instruction.cube));
             }
-            assert(cubes.map((c) => c.volume).sum() <= oldSum,
-                '\n$oldSum,${cubes.map((c) => c.volume).sum()}');
           }
         }
         return cubes.map((c) => c.volume).sum().toString();
